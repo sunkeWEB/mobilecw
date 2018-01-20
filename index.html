@@ -140,5 +140,76 @@
     </div>
 </div>
 <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+<script>
+    var listsrzc,daochu,jzrzcname,jzrid,dengji,quanxianarr=[];
+    $(function () {
+
+        $.ajax({
+            url: 'http://localhost:3000/users/auth',
+            type: 'post',
+            xhrFields: {
+                withCredentials: true
+            },
+            crossDomain: true,
+            dataType: 'json',
+            success: function (res) {
+                if (res.data == undefined) {  // 修改页面之后用户回退
+                    location.href = "login.html";
+                }
+                jzrzcname = res.data[0].zsname;
+                jzrid = res.data[0]._id;
+                dengji = res.data[0].dengji;
+                $('.jzrzcname').val(jzrzcname);
+                if (res.data[0].dengji == "普通记账" || res.data[0].dengji == "经理记账") {
+                    $('.xtzgqx > li').not('.updatepwds').remove();
+                }
+                var arr = res.data[0].quanxian;
+                console.log(arr);
+                for (item of arr) {
+                    quanxianarr.push(item.name);
+                    if (item.name == "收支记账") {
+                        listsrzc = item.list;
+                        if (listsrzc.create != 0) {   // 收支流水列表的 创建
+                            $('.authszrzcreate').remove();
+                        }
+                        if (listsrzc.read != 0) {
+                            $('.readszrzcreate').remove();  // 收支流水列表的 阅读
+                        }
+                    }
+                    else if (item.name == "表格导出") {
+                        daochu = item.list;
+                    }
+                    else if (item.name == "年度统计") {
+                        if (item.list.read != 0) {
+                            $('.niandutj').remove();
+                        }
+                    } else if (item.name == "收支曲线") {
+                        if (item.list.read != 0) {
+                            $('.mouththtj').remove();
+                        }
+                    } else if (item.name == "年度收支柱状图") {
+                        if (item.list.read != 0) {
+                            $('.yeartjzzt').remove();
+                        }
+                    } else if (item.name == "成员收支柱状图") {
+                        if (item.list.read != 0) {
+                            $('.accountzzttj').remove();
+                        }
+                    } else if (item.name == "收支构表") {
+                        if (item.list.read != 0) {
+                            $('.szgbtjt').remove();
+                        }
+                    }
+                }
+
+                // 如果资金管理没有权限 删除
+                var result1 = quanxianarr.indexOf("资金管理"); //返回index为2
+                // if (result1 == -1) {
+                //     $('.zjgl').remove();
+                // }
+            }
+        });
+    });
+</script>
 </body>
 </html>

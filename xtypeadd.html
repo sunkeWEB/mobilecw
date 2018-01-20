@@ -4,30 +4,47 @@
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
           name="viewport">
-    <title>收支流水</title>
-    <link rel="stylesheet" href="//at.alicdn.com/t/font_547663_lhtnrrwsaq2p4x6r.css">
+    <title>小类管理</title>
+    <link rel="stylesheet" href="//at.alicdn.com/t/font_547663_zxy9ssh255pl23xr.css">
     <link rel="stylesheet" href="./public/css/public.css">
-    <link rel="stylesheet" href="./public/css/zjgl.css">
+    <link rel="stylesheet" href="./public/css/szls.css">
     <link href="https://cdn.bootcss.com/animate.css/3.5.2/animate.min.css" rel="stylesheet">
+    <style>
+        .lists {
+            padding: 0.5rem;
+        }
+
+        .footer-lists-items {
+            border-top: 1px solid #e9e9e9;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .footer-lists-items > div {
+            border: 1px solid #e9e9e9;
+            font-size: 0.8rem;
+            padding: 0.4rem 0.8rem;
+            text-align: right;
+            margin-top: 0.5rem;
+        }
+    </style>
 </head>
 <body>
 <div>
     <div class="top">
         <div class="top-name">
             <div><i class="back iconfont icon-zuobianjiantou"></i></div>
-            <div class="name"><span>收支流水</span></div>
+            <div class="name"><span>小类管理</span></div>
         </div>
     </div>
-    <div class="selectdiv">
-        <div class="serchdivactive">应收款</div>
-        <div>应付款</div>
+    <div class="serchdiv">
+        <button class="serchdivactive">全部</button>
+        <button>收入</button>
+        <Button>支出</Button>
     </div>
     <div class="content" style="padding-top: 5.1rem">
         <div class="lists">
         </div>
-    </div>
-    <div class="zzcz">
-        转账
     </div>
     <div class="footer">
         <div class="footer-box">
@@ -44,13 +61,13 @@
                 </a>
             </div>
             <div>
-                <a href="#" id="tabactive">
+                <a href="zjgl.html">
                     <div><i class="iconfont icon-zijinguanli"></i></div>
                     <div><span>资金管理</span></div>
                 </a>
             </div>
             <div>
-                <a href="user.html">
+                <a href="user.html" id="tabactive">
                     <div><i class="iconfont icon-yonghu"></i></div>
                     <div><span>我的</span></div>
                 </a>
@@ -60,8 +77,10 @@
 </div>
 <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
 <script src="./public/js/common.js"></script>
+<script src="./public/js/jqfz.js"></script>
 <script>
     $(function () {
+        $.auth();
         $('.back').click(function () {
             window.history.go(-1);
         });
@@ -69,20 +88,8 @@
             $(this).siblings().removeClass('serchdivactive');
             $(this).addClass('serchdivactive');
         });
-        $('.zjzh').click(function () {
-            $(this).siblings().removeClass('active');
-            $(this).toggleClass('active');
-            if ($('.active').length===1) {  // 如果存在一个 active 就代表转账
-                $('.zzcz').show();
-            }else{
-                $('.zzcz').hide();
-            }
-        });
-        $('.zzcz').click(function () {
-            console.log("转账");
-        });
         $.ajax({
-            url: 'http://' + location.hostname + ':3000/reads/readaccountzh',
+            url: 'http://' + location.hostname + ':3000/reads/readxtypes',
             type: 'get',
             dataType: 'json',
             data: {order: "asc", offset: 0, limit: 100},
@@ -92,20 +99,21 @@
                 var data = res.data;
                 for (var i = 0; i < data.length; i++) {
                     $('.lists').append(`
-                   <div class="zjzh">
-                <div class="left"><span>${data[i].name}</span></div>
-                <div class="right">
-                    <div>
-                        <span><i class="iconfont icon-chongzhijine" style="color: salmon"></i>初始金额</span>
-                        <span>${data[i].defaultprice}</span>
+                     <div class="lists-items">
+                <div class="top-lists-items">
+                    <div><span><i class="iconfont icon-xiangmu"> ${data[i].name}</i></span></div>
+                    <div class="right"><span style="font-size: 0.8rem">${data[i].dtype===1?'收入':'支出'}</span></div>
+                </div>
+                <div class="body-lists-items">
+                    <div style="padding: 0.5rem 0">
+                        <i class="iconfont icon-jiaqileixing"></i> <span>所属大类</span> : <span>${data[i].sname}</span>
                     </div>
-                    <div>
-                        <span><i class="iconfont icon-chongzhijine" style="color: deepskyblue"></i>当前金额</span>
-                        <span>${data[i].price}</span>
+                    <div style="padding-bottom: 0.5rem">
+                        <i class="iconfont icon-beizhu"></i> <span>备注</span> : <span>${data[i].sm}</span>
                     </div>
-                    <div>
-                        <span><i class="iconfont icon-shouzhiliushui" style="color: green"></i>收支流水</span>
-                        <span><i class="iconfont icon-zhuanzhang" style="color: gold"></i>转账流水</span>
+                    <div class="footer-lists-items">
+                        <div>修改</div>
+                        <div>删除</div>
                     </div>
                 </div>
             </div>
