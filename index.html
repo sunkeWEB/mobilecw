@@ -27,8 +27,8 @@
                        <img src="./public/image/home-1.png" alt="">
                    </div>
                    <div class="szlistbox">
-                       <h3 class="red">2017年收入</h3>
-                       <p>￥105,307.00</p>
+                       <h3 class="red"><span class="sr"></span>年收入</h3>
+                       <p class="srp">￥0.00</p>
                    </div>
                </div>
 
@@ -38,8 +38,8 @@
                        <img src="./public/image/home-2.png" alt="">
                    </div>
                    <div class="szlistbox">
-                       <h3 class="green">2017年支出</h3>
-                       <p>￥80,933.00</p>
+                       <h3 class="green"><span class="sr"></span>年支出</h3>
+                       <p class="zcp">￥0.00</p>
                    </div>
                </div>
 
@@ -49,64 +49,16 @@
                        <img src="./public/image/home-3.png" alt="">
                    </div>
                    <div class="szlistbox">
-                       <h3 class="red">2017年盈亏</h3>
-                       <p>￥24,374.00</p>
+                       <h3 class="red"><span class="sr"></span>年盈亏</h3>
+                       <p class="totalp">￥0.00</p>
                    </div>
                </div>
-
                <div class="sztitle">账户信息</div>
-
-               <div class=" szlist ">
-                   <div class="szlistimg">
-                       <i style="color: #1296db" class="iconfont icon-licaibao"></i>
-                   </div>
-                   <div class="szlistbox">
-                       <h3 class="red">工商银行</h3>
-                       <p><span>余额</span> ￥5,307.00</p>
-                   </div>
+               <div class="accountlist">
                </div>
+               <div class="total">
 
-               <div class=" szlist ">
-                   <div class="szlistimg">
-                       <i style="color: #1296db" class="iconfont icon-licaibao"></i>
-                   </div>
-                   <div class="szlistbox">
-                       <h3 class="red">农业银行</h3>
-                       <p><span>余额</span> ￥307.00</p>
-                   </div>
                </div>
-
-               <div class=" szlist ">
-                   <div class="szlistimg">
-                       <i style="color: #1296db" class="iconfont icon-licaibao"></i>
-                   </div>
-                   <div class="szlistbox">
-                       <h3 class="red">建设银行</h3>
-                       <p><span>余额</span> ￥3107.00</p>
-                   </div>
-               </div>
-
-               <div class=" szlist ">
-                   <div class="szlistimg">
-                       <i style="color: #1296db" class="iconfont icon-licaibao"></i>
-                   </div>
-                   <div class="szlistbox">
-                       <h3 class="red">光大银行</h3>
-                       <p><span>余额</span> ￥3107.00</p>
-                   </div>
-               </div>
-
-               <div class=" szlist ">
-                   <div class="szlistimg">
-                       <i style="color: #1296db" class="iconfont icon-licaibao"></i>
-                   </div>
-                   <div class="szlistbox">
-                       <h3 class="red">浦发银行</h3>
-                       <p><span>余额</span> ￥13107.00</p>
-                   </div>
-               </div>
-
-
            </div>
         </div>
     </div>
@@ -140,73 +92,84 @@
     </div>
 </div>
 <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+<script src="public/js/jqfz.js"></script>
 <script>
-    var listsrzc,daochu,jzrzcname,jzrid,dengji,quanxianarr=[];
+    var totalmoney = 0,yearsr=0,yearzc=0,year = new Date().getFullYear();
     $(function () {
-
+        $.auth();
         $.ajax({
-            url: 'http://localhost:3000/users/auth',
-            type: 'post',
-            xhrFields: {
-                withCredentials: true
-            },
-            crossDomain: true,
+            url: 'http://' + location.hostname + ':3000/reads/readaccountzh',
+            type: 'get',
             dataType: 'json',
+            data: {order: "asc", offset: 0, limit: 100},
             success: function (res) {
-                if (res.data == undefined) {  // 修改页面之后用户回退
-                    location.href = "login.html";
+                var data = res.data;
+                for (var i = 0; i < data.length; i++) {
+                    var money = $.fmoney(data[i].price, 2);
+                    totalmoney += parseInt(data[i].price);
+                    $('.accountlist').append(`
+                 <div class=" szlist ">
+                       <div class="szlistimg">
+                           <i style="color: #1296db" class="iconfont icon-licaibao"></i>
+                       </div>
+                       <div class="szlistbox">
+                           <h3 class="red">${data[i].name}</h3>
+                           <p><span>余额</span>￥${money}</p>
+                       </div>
+                   </div>
+                    `);
                 }
-                jzrzcname = res.data[0].zsname;
-                jzrid = res.data[0]._id;
-                dengji = res.data[0].dengji;
-                $('.jzrzcname').val(jzrzcname);
-                if (res.data[0].dengji == "普通记账" || res.data[0].dengji == "经理记账") {
-                    $('.xtzgqx > li').not('.updatepwds').remove();
-                }
-                var arr = res.data[0].quanxian;
-                console.log(arr);
-                for (item of arr) {
-                    quanxianarr.push(item.name);
-                    if (item.name == "收支记账") {
-                        listsrzc = item.list;
-                        if (listsrzc.create != 0) {   // 收支流水列表的 创建
-                            $('.authszrzcreate').remove();
+                var totalmoneys = $.fmoney(totalmoney, 2);
+                $('.total').append(`
+                <div class=" szlist ">
+                       <div class="szlistimg">
+                           <i style="color: #1296db;font-size: 2.3rem" class="iconfont icon-leijishouru"></i>
+                       </div>
+                       <div class="szlistbox">
+                           <h3 class="red">总余额</h3>
+                           <p><span>余额</span>￥${totalmoneys}</p>
+                       </div>
+                   </div>
+                `);
+            }
+        });
+        $.ajax({
+            url: 'http://' + location.hostname + ':3000/reads/readyearzctjt',
+            type: 'get',
+            dataType: 'json',
+            data: {years:2017},
+            success: function (res) {
+                var data = res.data;
+                for (var i=0;i<data.length;i++) {
+                    if (data[i].length<2 && data[i].length>0) {   // 当月只有支出或者收入  或者什么也没有
+                        console.log(data[i][0]);
+                        for (var k =0 ;k<1;k++) {
+                            if (data[i].length===0) {  // 什么也没有
+                            }else {
+                                if (data[i][k]._id===1) {
+                                    yearsr += parseInt(data[i][k].total);
+                                }else {
+                                    yearzc += parseInt(data[i][k].total);
+                                }
+                            }
                         }
-                        if (listsrzc.read != 0) {
-                            $('.readszrzcreate').remove();  // 收支流水列表的 阅读
+                    }else {
+                        for (var s =0 ;s<2;s++) {
+                            if (data[i][s]._id===1) {  // 收入
+                                yearsr += parseInt(data[i][s].total);
+                            }else {
+                                yearzc += parseInt(data[i][s].total);
+                            }
                         }
                     }
-                    else if (item.name == "表格导出") {
-                        daochu = item.list;
-                    }
-                    else if (item.name == "年度统计") {
-                        if (item.list.read != 0) {
-                            $('.niandutj').remove();
-                        }
-                    } else if (item.name == "收支曲线") {
-                        if (item.list.read != 0) {
-                            $('.mouththtj').remove();
-                        }
-                    } else if (item.name == "年度收支柱状图") {
-                        if (item.list.read != 0) {
-                            $('.yeartjzzt').remove();
-                        }
-                    } else if (item.name == "成员收支柱状图") {
-                        if (item.list.read != 0) {
-                            $('.accountzzttj').remove();
-                        }
-                    } else if (item.name == "收支构表") {
-                        if (item.list.read != 0) {
-                            $('.szgbtjt').remove();
-                        }
-                    }
                 }
-
-                // 如果资金管理没有权限 删除
-                var result1 = quanxianarr.indexOf("资金管理"); //返回index为2
-                // if (result1 == -1) {
-                //     $('.zjgl').remove();
-                // }
+                $('.sr').text(`${year}总收入`);
+                var yearsrs = $.fmoney(yearsr);
+                var yearzcs = $.fmoney(yearzc);
+                var total = $.fmoney(yearsr-yearzc);
+                $('.srp').text(`￥${yearsrs}`);
+                $('.zcp').text(`￥${yearzcs}`);
+                $('.totalp').text(`￥${total}`);
             }
         });
     });

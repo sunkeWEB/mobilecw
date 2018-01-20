@@ -103,28 +103,47 @@
 
 
     $.auth = function () {
-        var authresult={};
+        var authresult = {};
         if (false) {
-        }else{
+        } else {
             $.ajax({
                 url: 'http://localhost:3000/users/auth',
                 type: 'post',
                 xhrFields: {
                     withCredentials: true
                 },
-                async:false,
+                async: false,
                 crossDomain: true,
                 dataType: 'json',
                 success: function (res) {
                     if (res.data == undefined) {  // 修改页面之后用户回退
                         location.href = "login.html";
-                    }else{
-                        authresult=res.data;
+                    } else {
+                        authresult = res.data;
                     }
                 }
             });
         }
         return authresult;
     };
+
+    $.formatDate = function (nows) {
+        var now = new Date(nows * 1000);
+        var year = now.getFullYear();
+        var month = now.getMonth() + 1;
+        var date = now.getDate();
+        return year + "-" + month + "-" + date;
+    };
+    $.fmoney = function (s,n) {
+        n = n > 0 && n <= 20 ? n : 2;
+        s = parseFloat((s + "").replace(/[^\d\.-]/g, "")).toFixed(n) + "";
+        var l = s.split(".")[0].split("").reverse(),
+            r = s.split(".")[1];
+        var t = "";
+        for (var i = 0; i < l.length; i++) {
+            t += l[i] + ((i + 1) % 3 == 0 && (i + 1) != l.length ? "," : "");
+        }
+        return t.split("").reverse().join("") + "." + r;
+    }
 
 })(jQuery);
